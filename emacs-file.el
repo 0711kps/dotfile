@@ -51,6 +51,7 @@
 (use-package corfu
   :ensure t
   :custom
+  (corfu-count 3)
   (corfu-auto t)                 ;; 自動跳出補全視窗
   (corfu-auto-delay 0.0)         ;; 0 秒延遲，反應最快
   (corfu-auto-prefix 1)          ;; 輸入 1 個字就開始提示
