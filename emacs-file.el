@@ -1,3 +1,8 @@
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(package-initialize)
+
 (setq make-backup-files nil)
 (setq auto-save-default nil)
 (global-display-line-numbers-mode t)
@@ -38,12 +43,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(ace-window cape consult corfu-terminal marginalia multiple-cursors
-		orderless typescript-mode vertico)))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; If you edit it by hand, you could mess it up, so be carefual.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
@@ -94,6 +97,14 @@
 (bind-key* "C-c C-j" 'avy-goto-char-timer)
 (bind-key* "C-c r" 'consult-ripgrep)
 (bind-key* "C-c C-r" 'consult-ripgrep)
+(bind-key* "C-c ;" 'comment-line)
+(bind-key* "C-c ," 'emmet-expand-line)
+(bind-key* "C-c C-v" 'set-mark-command)
+
+(use-package emmet-mode
+  :ensure t)
+(use-package typescript-mode
+  :ensure t)
 
 (defun my/split-right ()
   "separate and move to right"
