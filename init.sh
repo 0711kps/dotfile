@@ -10,6 +10,27 @@ askForProcessing(){
   [[ $ans == "y" ]]
 }
 
+installSystemPackages(){
+    if [[ $(command -v apt > /dev/null) ]]
+    then
+	installAPTpackages
+    elif [[ $(command -v dnf > /dev/null) ]]
+	 installDnfPackages
+    fi
+}
+
+installDnfPackages(){
+    askForProcessing "install dnf packages" || return
+    printf "now installing DNF packages..\r"
+    inputMethod="fcitx5 fcitx5-chewing fcitx5-anthy fcitx5-pinyin"
+    commonBuildDependencies="build-essential git curl wget cmake"
+    utilities="fzf fd-find ripgrep bat xclip neovim httpie"
+    container="podman podman-compose qemu-system-x86"
+    desktopApps="mpv"
+
+    sudo dnf install -yq ${inputMethod} ${commonBuildDependencies} ${utilities} ${container} ${desktopApps}
+}
+
 installAPTpackages(){
   askForProcessing "install apt packages" || return
   printf "now installing APT packages...\r"
@@ -489,7 +510,7 @@ vim.keymap.set('n', '<C-c>/', '<Cmd>BLines<CR>')
 NvimFzf
 }
 
-installAPTpackages
+installSystemPackages
 downloadFonts
 configureInputMethod
 installStarship
