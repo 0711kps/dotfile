@@ -678,6 +678,12 @@ postActionHint(){
   a. alacritty to Ctl-Alt-t
   b. xfce4-appfinder to Alt-Esc
   c. xfce4-appfinder --collapsed to Ctl-Esc
+3. change touchpad behavior
+  a. go to mouse and touchpad
+    -> select touchpad from device dropdown
+    -> uncheck "Adaptive pointer acceleration"
+    -> go to Touchpad tab
+    -> check "Tap touchpad to click"
 EOF
     fi
 }
