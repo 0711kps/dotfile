@@ -24,7 +24,7 @@ installDnfPackages(){
     askForProcessing "install dnf packages" || return
     printf "now installing DNF packages..\r"
     inputMethod="fcitx5 fcitx5-chewing fcitx5-anthy fcitx5-pinyin"
-    commonBuildDependencies="build-essential git curl wget cmake"
+    commonBuildDependencies="make automake gcc gcc-c++ kernel-devel git curl wget cmake"
     utilities="fzf fd-find ripgrep bat xclip neovim httpie"
     container="podman podman-compose qemu-system-x86"
     desktopApps="mpv"
