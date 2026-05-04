@@ -167,7 +167,7 @@ configureSSHkey(){
 Host mygithub
   Hostname github.com
   User git
-  IdentityFile \$HOME/.ssh/personal
+  IdentityFile ~/.ssh/personal
 SSHConfig
 }
 
