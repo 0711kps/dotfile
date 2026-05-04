@@ -679,9 +679,10 @@ postActionHint(){
   b. xfce4-appfinder to Alt-Esc
   c. xfce4-appfinder --collapsed to Ctl-Esc
 3. change touchpad behavior
-  a. go to mouse and touchpad
+  a. go to Mouse and Touchpad
     -> select touchpad from device dropdown
     -> uncheck "Adaptive pointer acceleration"
+    -> check "Reverse scroll direction"
     -> go to Touchpad tab
     -> check "Tap touchpad to click"
 EOF
