@@ -11,10 +11,10 @@ askForProcessing(){
 }
 
 installSystemPackages(){
-    if [[ $(command -v apt > /dev/null) ]]
+    if [[ $(command -v apt) ]]
     then
 	installAPTpackages
-    elif [[ $(command -v dnf > /dev/null) ]]
+    elif [[ $(command -v dnf) ]]
     then
 	 installDnfPackages
     fi
