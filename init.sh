@@ -95,6 +95,34 @@ installASDF(){
   done
 }
 
+configureAlacritty(){
+    askForProcessing "configure Alacritty" || return
+    cat <<EOF > ~/.config/alacritty/alacritty.toml
+[general]
+live_config_reload = true
+
+[window]
+opacity = 0.82
+padding = { x = 8, y = 3 }
+dimensions = { columns = 110, lines = 36 }
+
+[font]
+#normal = { family = "CaskaydiaCove Nerd Font", style = "Regular" }
+#bold = { family = "CaskaydiaCove Nerd Font", style = "Bold" }
+normal = { family = "JetBrains Mono", style = "Regular" }
+bold = { family = "JetBrains Mono", style = "Bold" }
+size = 15.5
+
+[cursor.style]
+shape = "Beam"
+blinking = "Always"
+
+[colors.primary]
+background = "#1a1b26"
+foreground = "#a9b1d6"
+EOF
+}
+
 configureBash(){
   askForProcessing "configure bash" || return
   _configureBashAlias
@@ -706,6 +734,7 @@ downloadFonts
 configureInputMethod
 installStarship
 installASDF
+configureAlacritty
 configureBash
 configureSSHkey
 configureGit
