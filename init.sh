@@ -27,7 +27,7 @@ installDnfPackages(){
     commonBuildDependencies="make automake gcc gcc-c++ kernel-devel git curl wget cmake"
     utilities="fzf fd-find ripgrep bat xclip neovim httpie"
     container="podman podman-compose qemu-system-x86"
-    desktopApps="mpv"
+    desktopApps="mpv alacritty"
 
     sudo dnf install -yq ${inputMethod} ${commonBuildDependencies} ${utilities} ${container} ${desktopApps}
 }
@@ -39,7 +39,7 @@ installAPTpackages(){
   commonBuildDependencies="build-essential git curl wget cmake"
   utilities="fzf fd-find ripgrep bat xclip neovim httpie"
   container="podman podman-compose qemu-system-x86"
-  desktopApps="mpv"
+  desktopApps="mpv alacritty"
 
   rubyDependencies="zlib1g-dev libreadline-dev libffi-dev libyaml-dev"
   sudo apt-get install -yqq ${inputMethod} ${commonBuildDependencies} ${utilities} ${rubyDependencies} ${container} ${desktopApps}
