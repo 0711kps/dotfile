@@ -669,6 +669,19 @@ vim.keymap.set('n', '<C-c>/', '<Cmd>BLines<CR>')
 NvimFzf
 }
 
+postActionHint(){
+    if [[ $DESKTOP_SESSION == xfce ]]
+    then
+	cat <<EOF
+1. change resolution to fit your monitor size and distance
+2. change the keyboard shortcut
+  a. alacritty to Ctl-Alt-t
+  b. xfce4-appfinder to Alt-Esc
+  c. xfce4-appfinder --collapsed to Ctl-Esc
+EOF
+    fi
+}
+
 installSystemPackages
 downloadFonts
 configureInputMethod
@@ -680,3 +693,4 @@ configureGit
 configurePodman
 configureNeovim
 configureEmacs
+postActionHint
