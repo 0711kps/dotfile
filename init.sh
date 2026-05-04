@@ -686,6 +686,18 @@ postActionHint(){
     -> check "Tap touchpad to click"
 EOF
     fi
+    cat <<EOF
+1. register your ssh key to github
+  -> cat ~/.ssh/personal.pub | xclip -sel clip
+  -> go to github
+  -> click your avatar
+  -> Settings
+  -> SSH and GPG keys
+  -> New SSH key
+  -> give a title name, paste public key to the "Key" field
+  -> Add SSH Key
+  -> and make sure to use mygithub:xxx instead of git@github.com:xxx
+EOF
 }
 
 installSystemPackages
