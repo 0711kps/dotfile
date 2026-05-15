@@ -96,7 +96,8 @@ installASDF(){
 }
 
 configureAlacritty(){
-    askForProcessing "configure Alacritty" || return
+    askForProcessing "configure alacritty" || return
+    mkdir -p ~/.config/alacritty
     cat <<EOF > ~/.config/alacritty/alacritty.toml
 [general]
 live_config_reload = true
