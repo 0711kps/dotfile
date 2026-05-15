@@ -47,23 +47,23 @@ installAPTpackages(){
 
 downloadFonts(){
   askForProcessing "download fonts" || return
-  mkdir -p $HOME/.local/share/fonts
+  mkdir -p ~/.local/share/fonts
 
   # nerd fonts
   local fontNames=(CascadiaCode FiraCode D2Coding Hasklig Lilex)
   for fontName in $fontNames
   do
     curl -sfLo ${fontName}.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/${fontName}.zip
-    unzip -jo ${fontName}.zip '*.ttf' -d $HOME/.local/share/fonts && rm -f ${fontName}.zip
+    unzip -jo ${fontName}.zip '*.ttf' -d ~/.local/share/fonts && rm -f ${fontName}.zip
   done
 
   # jetbrain mono
   curl -sfLo JetBrainsMono.zip https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip
-  unzip -jo JetBrainsMono.zip  '*.ttf' -d $HOME/.local/share/fonts/ && rm -f JetBrainsMono.zip
+  unzip -jo JetBrainsMono.zip  '*.ttf' -d ~/.local/share/fonts/ && rm -f JetBrainsMono.zip
 
   # victor
   curl -sfLo VictorMono.zip https://rubjo.github.io/victor-mono/VictorMonoAll.zip
-  unzip -jo VictorMono.zip '*.ttf' -d $HOME/.local/share/fonts/ && rm -f VictorMono.zip
+  unzip -jo VictorMono.zip '*.ttf' -d ~/.local/share/fonts/ && rm -f VictorMono.zip
 
   fc-cache -fv
 }
@@ -87,7 +87,7 @@ installASDF(){
   tar xf asdf.tar.gz
   sudo mv asdf /usr/local/bin/
   rm -f asdf.tar.gz
-  mkdir -p $HOME/.asdf
+  mkdir -p ~/.asdf
   local plugins=(ruby rust golang nodejs gleam)
   for plugin in $plugins
   do
@@ -131,23 +131,23 @@ configureBash(){
   _configureBashPath
   _installZoxide
 
-  cat << BashRC > $HOME/.bashrc_custom
-source \$HOME/.bashrc_custom_alias
-source \$HOME/.bashrc_custom_env
-source \$HOME/.bashrc_custom_path
+  cat << BashRC > ~/.bashrc_custom
+source ~/.bashrc_custom_alias
+source ~/.bashrc_custom_env
+source ~/.bashrc_custom_path
 eval "\$(fzf --bash)"
 eval "\$(starship init bash)"
 eval "\$(zoxide init bash)"
 BashRC
 
-if [[ $(cat $HOME/.bashrc | grep 'bashrc_custom' | wc -l) -eq 0 ]]
+if [[ $(cat ~/.bashrc | grep 'bashrc_custom' | wc -l) -eq 0 ]]
 then
-  echo "source \$HOME/.bashrc_custom" >> $HOME/.bashrc
+  echo "source ~/.bashrc_custom" >> ~/.bashrc
 fi
 }
 
 _configureBashAlias(){
-  cat << BashAlias > $HOME/.bashrc_custom_alias
+  cat << BashAlias > ~/.bashrc_custom_alias
 # git
 alias gst="git status"
 alias glg="git log"
@@ -195,15 +195,15 @@ BashAlias
 }
 
 _configureBashEnv(){
-  cat << BashEnv > $HOME/.bashrc_custom_env
-  export ASDF_DIR=\$HOME/.asdf
+  cat << BashEnv > ~/.bashrc_custom_env
+  export ASDF_DIR=~/.asdf
 BashEnv
 }
 
 _configureBashPath(){
-  cat << BashPath > $HOME/.bashrc_custom_path
+  cat << BashPath > ~/.bashrc_custom_path
   export PATH=\$PATH:\$ASDF_DIR/shims
-  export PATH=\$PATH:\$HOME/.local/bin
+  export PATH=\$PATH:~/.local/bin
 BashPath
 }
 
@@ -213,8 +213,8 @@ _installZoxide(){
 
 configureSSHkey(){
   askForProcessing "configure ssh key" || return
-  ssh-keygen -b 4096 -t ed25519 -f $HOME/.ssh/personal -q -N ""
-  cat << SSHConfig >> $HOME/.ssh/config
+  ssh-keygen -b 4096 -t ed25519 -f ~/.ssh/personal -q -N ""
+  cat << SSHConfig >> ~/.ssh/config
 Host mygithub
   Hostname github.com
   User git
@@ -242,10 +242,10 @@ configurePodman(){
 configureNeovim(){
   askForProcessing "configure neovim" || return
   # download vim-plug
-  mkdir -p $HOME/.config/nvim/autoload
-  if [[ ! -f $HOME/.config/nvim/autoload/plug.vim ]]
+  mkdir -p ~/.config/nvim/autoload
+  if [[ ! -f ~/.config/nvim/autoload/plug.vim ]]
   then
-    curl -sfLo $HOME/.config/nvim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    curl -sfLo ~/.config/nvim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
   fi
   _configureNvimKeybind
   _configureNvimWindow
@@ -420,7 +420,7 @@ EOF
 }
 
 _configureNvimInit(){
-  cat << NvimInit > $HOME/.config/nvim/init.lua
+  cat << NvimInit > ~/.config/nvim/init.lua
 -- init.lua
 --------------------------------------------------
 -- 基礎外觀
@@ -492,8 +492,8 @@ NvimInit
 }
 
 _configureNvimKeybind(){
-  mkdir -p $HOME/.config/nvim
-  cat << NvimKeybind > $HOME/.config/nvim/keybind.lua
+  mkdir -p ~/.config/nvim
+  cat << NvimKeybind > ~/.config/nvim/keybind.lua
 -- 快捷鍵設定
 
 -- 上下左右、翻頁、首尾
@@ -542,8 +542,8 @@ NvimKeybind
 }
 
 _configureNvimWindow(){
-  mkdir -p $HOME/.config/nvim
-  cat << NvimWindow > $HOME/.config/nvim/window.lua
+  mkdir -p ~/.config/nvim
+  cat << NvimWindow > ~/.config/nvim/window.lua
 -- 視窗導航
 -- -- 註解
 vim.keymap.set('n', '<C-c><C-w><Right>', ':vsplit<CR>', { silent = true  })
@@ -556,8 +556,8 @@ NvimWindow
 }
 
 _configureNvimPlugins(){
-  mkdir -p $HOME/.config/nvim
-  cat << NvimPlugins > $HOME/.config/nvim/plugins.vim
+  mkdir -p ~/.config/nvim
+  cat << NvimPlugins > ~/.config/nvim/plugins.vim
 call plug#begin()
 
 nm <C-c>' <Plug>(emmet-expand-abbr)
@@ -591,7 +591,7 @@ _configureNvimPluginsConfig(){
 }
 
 __configureNvimLsp(){
-  cat << NvimLsp > $HOME/.config/nvim/plugins-config/lsp.lua
+  cat << NvimLsp > ~/.config/nvim/plugins-config/lsp.lua
 -- Python
 vim.lsp.enable('pyright')
 -- Ruby
@@ -611,7 +611,7 @@ NvimLsp
 }
 
 __configureNvimCmp(){
-  cat << NvimCmp > $HOME/.config/nvim/plugins-config/cmp.lua
+  cat << NvimCmp > ~/.config/nvim/plugins-config/cmp.lua
 -- Set up nvim-cmp.
 local cmp = require'cmp'
 cmp.setup({
@@ -674,8 +674,8 @@ NvimCmp
 }
 
 __configureNvimCommentary(){
-  mkdir -p $HOME/.config/nvim/plugins-config
-  cat << NvimCommentary > $HOME/.config/nvim/plugins-config/commentary.lua
+  mkdir -p ~/.config/nvim/plugins-config
+  cat << NvimCommentary > ~/.config/nvim/plugins-config/commentary.lua
 -- 註解
 vim.keymap.set('n', '<C-c>;', ':Commentary<CR>', { silent = true })
 vim.keymap.set('v', '<C-c>;', ':Commentary<CR>', { silent = true })
@@ -683,8 +683,8 @@ NvimCommentary
 }
 
 __configureNvimEasymotion(){
-  mkdir -p $HOME/.config/nvim/plugins-config
-  cat << NvimEasymotion > $HOME/.config/nvim/plugins-config/easymotion.lua
+  mkdir -p ~/.config/nvim/plugins-config
+  cat << NvimEasymotion > ~/.config/nvim/plugins-config/easymotion.lua
 -- 快速移動 cursor（EasyMotion）
 vim.keymap.set('n', '<C-j>', '<Plug>(easymotion-s)', { silent = true })
 vim.keymap.set('v', '<C-j>', '<Plug>(easymotion-s)', { silent = true })
@@ -693,8 +693,8 @@ NvimEasymotion
 }
 
 __configureNvimFzf(){
-  mkdir -p $HOME/.config/nvim/plugins-config
-  cat << NvimFzf > $HOME/.config/nvim/plugins-config/fzf.lua
+  mkdir -p ~/.config/nvim/plugins-config
+  cat << NvimFzf > ~/.config/nvim/plugins-config/fzf.lua
 -- FZF 功能（使用 <Cmd> 避免模式切換）
 vim.keymap.set('n', '<C-c><C-f>', '<Cmd>Files<CR>')
 vim.keymap.set('n', '<C-c><C-b>', '<Cmd>Buffers<CR>')
