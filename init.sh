@@ -258,7 +258,7 @@ configureNeovim(){
 
 configureEmacs(){
     askForProcessing "configure emacs" || return
-    cat <<EOF > $HOME/.emacs
+    cat <<EOF > ~/.emacs
 (require 'package)
 (add-to-list 'package-archives
              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
@@ -304,10 +304,12 @@ configureEmacs(){
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(ace-window cape consult corfu-terminal emmet-mode marginalia
+		multiple-cursors orderless typescript-mode vertico)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be carefual.
+ ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
@@ -317,7 +319,7 @@ configureEmacs(){
   :custom
   (corfu-count 3)
   (corfu-auto t)                 ;; 自動跳出補全視窗
-  (corfu-auto-delay 0.0)         ;; 0 秒延遲，反應最快
+  (corfu-auto-delay 0.6)         ;; 0 秒延遲，反應最快
   (corfu-auto-prefix 1)          ;; 輸入 1 個字就開始提示
   (corfu-cycle t)                ;; 可以循環選單
   :init
@@ -339,7 +341,7 @@ configureEmacs(){
 (global-set-key (kbd "M-/") #'completion-at-point)
 
 (setq-default completion-at-point-functions 
-              '(cape-dabbrev cape-file))
+              '(cape-dabbrev cape-file cape-keyword))
 
 (defun my/toggle-eglot ()
   "如果 eglot 沒開啟就執行 eglot，否則執行 eglot-shutdown。"
@@ -405,6 +407,9 @@ configureEmacs(){
   :config
   (setq avy-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   )
+
+(use-package consult
+  :ensure t)
 
 (use-package ace-window
   :ensure t)
