@@ -273,6 +273,9 @@ configureEmacs(){
 (setq scroll-margin 3)
 
 
+(setq js-indent-level 2)
+(setq typescript-indent-level 2)
+
 ;; Enable vertico
 (use-package vertico
   :ensure t
@@ -306,7 +309,8 @@ configureEmacs(){
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    '(ace-window cape consult corfu-terminal emmet-mode marginalia
-		multiple-cursors orderless typescript-mode vertico)))
+		multiple-cursors orderless typescript-mode vertico
+		web-mode)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
