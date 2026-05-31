@@ -196,7 +196,7 @@ BashAlias
 
 _configureBashEnv(){
   cat << BashEnv > ~/.bashrc_custom_env
-  export ASDF_DIR=~/.asdf
+export ASDF_DIR=~/.asdf
 # Avoid duplicates
 HISTCONTROL=ignoredups:erasedups
 # When the shell exits, append to the history file instead of overwriting it
@@ -209,8 +209,8 @@ BashEnv
 
 _configureBashPath(){
   cat << BashPath > ~/.bashrc_custom_path
-  export PATH=\$PATH:\$ASDF_DIR/shims
-  export PATH=\$PATH:~/.local/bin
+export PATH=\$PATH:\$ASDF_DIR/shims
+export PATH=\$PATH:~/.local/bin
 BashPath
 }
 
