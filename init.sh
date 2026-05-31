@@ -374,6 +374,7 @@ configureEmacs(){
 (bind-key* "C-c ;" 'comment-line)
 (bind-key* "C-c ," 'emmet-expand-line)
 (bind-key* "C-c C-v" 'set-mark-command)
+(bind-key* "C-h" 'delete-backward-char)
 
 (use-package emmet-mode
   :ensure t)
