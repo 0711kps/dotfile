@@ -260,7 +260,6 @@ configureNeovim(){
   _configureNvimPluginsConfig
   _configureNvimInit
   nvim -c ":PlugInstall | qa"
-  nvim -c "TSInstallSync typescript ruby python rust go javascript | qa"
 }
 
 configureEmacs(){
@@ -268,8 +267,25 @@ configureEmacs(){
     cat <<EOF > ~/.emacs
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
 (package-initialize)
+
+(defvar package-list-stamp-file
+  (expand-file-name ".package-refresh-stamp" user-emacs-directory))
+
+(defun ensure-fresh-package-list (&optional hours)
+  "Refresh package list if stamp older than HOURS (default 6)."
+  (let* ((max-age (or hours 60))
+         (elapsed (if (file-exists-p package-list-stamp-file)
+                      (- (float-time)
+                         (float-time (nth 5 (file-attributes package-list-stamp-file))))
+                    most-positive-fixnum)))  ;; 不存在 = 強制 refresh
+    (when (> elapsed (* max-age 3600))
+      (package-refresh-contents)
+      (write-region "" nil package-list-stamp-file)
+      (message "Package list refreshed."))))
+
+(add-hook 'after-init-hook (lambda () (ensure-fresh-package-list 77)))
 
 (setq make-backup-files nil)
 (setq auto-save-default nil)
@@ -461,20 +477,6 @@ vim.api.nvim_create_autocmd({ 'BufWinEnter', 'InsertLeave' }, {
 })
 
 --------------------------------------------------
--- 檔案開啟後啟用 TreeSitter highlight（對應原 TSBufEnable）
---------------------------------------------------
--- vim.api.nvim_create_autocmd('FileType', {
---   pattern = '*',
---   callback = function(args)
---     -- 只在有 parser 的檔案啟用，避免報錯
---     local lang = vim.treesitter.language.get_lang(vim.bo[args.buf].filetype)
---     -- if lang then
---     --   vim.treesitter.start(args.buf, lang)
---     -- end
---   end,
--- })
-
---------------------------------------------------
 -- 相對載入
 --------------------------------------------------
 local function source_vim_relatively(name)
@@ -595,7 +597,7 @@ NvimPlugins
 }
 
 _configureNvimPluginsConfig(){
-  __configureNvimLsp
+  # __configureNvimLsp
   __configureNvimCmp
   __configureNvimCommentary
   __configureNvimEasymotion
