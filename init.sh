@@ -299,8 +299,7 @@ configureEmacs(){
 (setq js-indent-level 2)
 (setq typescript-indent-level 2)
 
-(add-to-list 'auto-mode-alist '("\\.sh\\'" . bash-ts-mode))
-(add-to-list 'auto-mode-alist '("\\.tsx\\'" . typescript-mode))
+(add-to-list 'auto-mode-alist '("\\\\.tsx\\\\'" . typescript-mode))
 
 ;; Enable vertico
 (use-package vertico
