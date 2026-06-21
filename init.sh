@@ -301,6 +301,34 @@ configureEmacs(){
 
 (add-to-list 'auto-mode-alist '("\\\\.tsx\\\\'" . typescript-mode))
 
+(use-package minuet
+    :ensure t
+    :bind
+    (("M-y" . #'minuet-complete-with-minibuffer)
+    :map minuet-active-mode-map)
+    :config
+    (setq minuet-provider 'openai-fim-compatible)
+    (setq minuet-max-tokens 50)
+    (setq minuet-n-completions 1)
+    (setq minuet-context-window 256)
+    (plist-put minuet-openai-fim-compatible-options :end-point "http://localhost:8080/v1/completions")
+    (plist-put minuet-openai-fim-compatible-options :name "Llama.cpp")
+    (plist-put minuet-openai-fim-compatible-options :api-key "TERM")
+    (plist-put minuet-openai-fim-compatible-options :model "any")
+    (minuet-set-nested-plist minuet-openai-fim-compatible-options nil :template :suffix)
+    (minuet-set-optional-options
+     minuet-openai-fim-compatible-options
+     :prompt
+     (defun minuet-llama-cpp-fim-qwen-prompt-function (ctx)
+         (format "<|fim_prefix|>%s\n%s<|fim_suffix|>%s<|fim_middle|>"
+                 (plist-get ctx :language-and-tab)
+                 (plist-get ctx :before-cursor)
+                 (plist-get ctx :after-cursor))
+     :template)
+
+    (minuet-set-optional-options minuet-openai-fim-compatible-options :max_tokens 256)))
+
+
 ;; Enable vertico
 (use-package vertico
   :ensure t
