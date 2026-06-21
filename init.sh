@@ -191,6 +191,7 @@ alias t="batcat"
 # podman
 alias docker="podman"
 alias dk="docker"
+alias dev="distrobox enter dev"
 BashAlias
 }
 
