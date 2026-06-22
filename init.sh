@@ -192,6 +192,20 @@ alias t="batcat"
 alias docker="podman"
 alias dk="docker"
 alias dev="distrobox enter dev"
+
+cb(){
+  if [[ -z $1 ]]
+  then
+    xclip -sel clip
+    return 0
+  fi
+
+  if [[ -f $1 ]] && [[ $(du $1 | awk '{print $1}') -lt 2000 ]]
+  then
+     xclip -sel clip < $1
+  else
+    printf $1 | xclip -sel clip
+  fi
 BashAlias
 }
 
