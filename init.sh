@@ -265,7 +265,7 @@ configureNeovim(){
 
 configureEmacs(){
     askForProcessing "configure emacs" || return
-    cat <<EOF > ~/.emacs
+    cat << EOF > ~/.emacs
 (require 'package)
 (add-to-list 'package-archives
              '("melpa-stable" . "http://stable.melpa.org/packages/") t)
@@ -313,7 +313,7 @@ configureEmacs(){
   ;; (setq aider-args '("--model" "o4-mini"))
   ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
   ;; Or use your personal config file
-  ;; (setq aider-args `("--config" ,(expand-file-name "~/.aider.conf.yml")))
+  ;; (setq aider-args ("--config" ,(expand-file-name "~/.aider.conf.yml")))
   ;; ;;
   ;; Optional: Set a key binding for the transient menu
   (global-set-key (kbd "C-c a") 'aider-transient-menu) ;; for wider screen
