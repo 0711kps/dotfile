@@ -299,6 +299,7 @@ configureEmacs(){
 
 (setq js-indent-level 2)
 (setq typescript-indent-level 2)
+(setq sh-basic-offset 2)
 
 (add-to-list 'auto-mode-alist '("\\\\.tsx\\\\'" . typescript-mode))
 
