@@ -202,10 +202,70 @@ cb(){
 
   if [[ -f $1 ]] && [[ $(du $1 | awk '{print $1}') -lt 2000 ]]
   then
-     xclip -sel clip < $1
-  else
-    printf $1 | xclip -sel clip
+    xclip -sel clip < $1
+  else printf $1 | xclip -sel clip
   fi
+}
+
+getwh(){
+  ffprobe -v error -select_streams v:0 -show_entries stream=width,height -of default=noprint_wrappers=1 "$1"
+}
+
+mp(){
+  getwh "$1"
+  mpv --autofit=100%x480 "$1" > /dev/null
+}
+
+xv(){
+  local input="$1"
+  local _vwh=$(getwh "$input")
+  local vwidth=$(echo $_vwh | rg -Po '(?<=width=)\d+')
+  local vheight=$(echo $_vwh | rg -Po '(?<=height=)\d+')
+  local is_landscape=$(($vwidth / $vheight))
+  local output=$(echo "$input" | sed 's/[ ()]//g')
+  output=${output%.*}.mp4
+  local full_output_path="$HOME/Videos/xxx/$output"
+  local vf
+  if [[ -z "$2" ]]
+  then
+    if [[ $is_landscape == 1 ]]
+    then
+      [[ $vheight -gt 880 ]] && vf="-vf scale_qsv=-1:880"
+    elif [[ $is_landscape == 0 ]]
+    then
+      [[ $vwidth -gt 880 ]] && vf="-vf scale_qsv=880:-1"
+    fi
+  else
+    if [[ "$2" == w* ]]
+    then
+      vf="${2##*w}"
+      vf="-vf scale_qsv=$vf:-1"
+    elif [[ "$2" == h* ]]
+    then
+      vf="${2##*h}"
+      vf="-vf scale_qsv=-1:$vf"
+    else
+      echo "incorrect, scale number, either w\d+ or h\d+ should be given!"
+      return 1
+    fi
+  fi
+  local extra_options=$(echo "${@:2}" | sed 's/scale=/scale_qsv=/')
+  local command="ffmpeg -hide_banner -loglevel error -hwaccel qsv -hwaccel_output_format qsv -i '$input' -c:v hevc_qsv -c:a libopus -af loudnorm=I=-16:TP=-1.5:LRA=11,volume=-2dB  -preset medium -b:v 5M -progress pipe:1 $vf '$full_output_path' | rg -o -P '(?<=time=)\d{2}:\d{2}:\d{2}\.\d{2}'"
+  echo "$command"
+  eval "$command" &&
+    echo "'$input' -> '$output' COMPLETE!"
+}
+
+hashrename(){
+  local input=$(basename "$1")
+  local ext=${input##*.}
+  local base=${input%.*}
+  local hash_part=$(md5sum "$input"  | awk '{print $1}' | rg '^.{8}' -o)
+  local orig_part=$(echo $base | sed 's/[ ()]//g' | rg -o '^.{1,8}')
+  local new_name="${hash_part}${orig_part}.${ext}"
+  mv "$input" "${new_name}" &&
+  echo "$input --> $new_name"
+}
 BashAlias
 }
 
