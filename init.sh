@@ -98,7 +98,7 @@ installASDF(){
 configureAlacritty(){
     askForProcessing "configure alacritty" || return
     mkdir -p ~/.config/alacritty
-    cat <<EOF > ~/.config/alacritty/alacritty.toml
+    cat <<'EOF' > ~/.config/alacritty/alacritty.toml
 [general]
 live_config_reload = true
 
@@ -131,13 +131,13 @@ configureBash(){
   _configureBashPath
   _installZoxide
 
-  cat << BashRC > ~/.bashrc_custom
+  cat << 'BashRC' > ~/.bashrc_custom
 source ~/.bashrc_custom_alias
 source ~/.bashrc_custom_env
 source ~/.bashrc_custom_path
-eval "\$(fzf --bash)"
-eval "\$(starship init bash)"
-eval "\$(zoxide init bash)"
+eval "$(fzf --bash)"
+eval "$(starship init bash)"
+eval "$(zoxide init bash)"
 BashRC
 
 if [[ $(cat ~/.bashrc | grep 'bashrc_custom' | wc -l) -eq 0 ]]
@@ -147,7 +147,7 @@ fi
 }
 
 _configureBashAlias(){
-  cat << BashAlias > ~/.bashrc_custom_alias
+  cat << 'BashAlias' > ~/.bashrc_custom_alias
 # git
 alias gst="git status"
 alias glg="git log"
@@ -187,6 +187,7 @@ alias vim="nvim"
 alias v="vim"
 alias fd="fdfind"
 alias t="batcat"
+alias e="emacs"
 
 # podman
 alias docker="podman"
@@ -216,6 +217,47 @@ mp(){
   mpv --autofit=100%x480 "$1" > /dev/null
 }
 
+detect_processor_encoder(){
+  local cache_path=$HOME/.cache/processor_encoder_name
+  if [[ -f $cache_path ]]
+  then
+    cat $cache_path
+  else
+    if ffmpeg -f lavfi -i nullsrc -c:v h264_nvenc -frames:v 1 -f null - 2>/dev/null
+    then
+      encoder_name=cuda
+    elif ffmpeg -f lavfi -i nullsrc -c:v h264_qsv -frames:v 1 -f null - 2>/dev/null
+    then
+      encoder_name=qsv
+    elif ffmpeg -f lavfi -i nullsrc -c:v h264_amf -frames:v 1 -f null - 2>/dev/null
+    then
+      encoder_name=amf
+    else
+      encoder_name=none
+    fi
+    printf $encoder_name > $cache_path
+    printf $encoder_name
+  fi
+}
+
+scale_p(){
+  local scale_param_name
+  case $(detect_processor_encoder) in
+  cuda)
+    printf scale_cuda
+    ;;
+  qsv)
+    printf scale_qsv
+    ;;
+  amf)
+    printf scale_amf
+    ;;
+  none)
+    printf scale
+    ;;
+  esac
+}
+
 xv(){
   local input="$1"
   local _vwh=$(getwh "$input")
@@ -225,25 +267,26 @@ xv(){
   local output=$(echo "$input" | sed 's/[ ()]//g')
   output=${output%.*}.mp4
   local full_output_path="$HOME/Videos/xxx/$output"
+  scale_option=$(scale_p)
   local vf
   if [[ -z "$2" ]]
   then
     if [[ $is_landscape == 1 ]]
     then
-      [[ $vheight -gt 880 ]] && vf="-vf scale_qsv=-1:880"
+      [[ $vheight -gt 880 ]] && vf="-vf ${scale_option}=-1:880"
     elif [[ $is_landscape == 0 ]]
     then
-      [[ $vwidth -gt 880 ]] && vf="-vf scale_qsv=880:-1"
+      [[ $vwidth -gt 880 ]] && vf="-vf ${scale_option}=880:-1"
     fi
   else
     if [[ "$2" == w* ]]
     then
       vf="${2##*w}"
-      vf="-vf scale_qsv=$vf:-1"
+      vf="-vf ${scale_option}=$vf:-1"
     elif [[ "$2" == h* ]]
     then
       vf="${2##*h}"
-      vf="-vf scale_qsv=-1:$vf"
+      vf="-vf ${scale_option}=-1:$vf"
     else
       echo "incorrect, scale number, either w\d+ or h\d+ should be given!"
       return 1
@@ -270,7 +313,7 @@ BashAlias
 }
 
 _configureBashEnv(){
-  cat << BashEnv > ~/.bashrc_custom_env
+  cat << 'BashEnv' > ~/.bashrc_custom_env
 export ASDF_DIR=~/.asdf
 # Avoid duplicates
 HISTCONTROL=ignoredups:erasedups
@@ -283,9 +326,9 @@ BashEnv
 }
 
 _configureBashPath(){
-  cat << BashPath > ~/.bashrc_custom_path
-export PATH=\$PATH:\$ASDF_DIR/shims
-export PATH=\$PATH:~/.local/bin
+  cat << 'BashPath' > ~/.bashrc_custom_path
+export PATH=$ASDF_DIR/shims:$PATH
+export PATH=$HOME/.local/bin:$PATH
 BashPath
 }
 
@@ -296,7 +339,7 @@ _installZoxide(){
 configureSSHkey(){
   askForProcessing "configure ssh key" || return
   ssh-keygen -b 4096 -t ed25519 -f ~/.ssh/personal -q -N ""
-  cat << SSHConfig >> ~/.ssh/config
+  cat << 'SSHConfig' >> ~/.ssh/config
 Host mygithub
   Hostname github.com
   User git
@@ -339,7 +382,7 @@ configureNeovim(){
 
 configureEmacs(){
     askForProcessing "configure emacs" || return
-    cat << EOF > ~/.emacs
+    cat << 'EOF' > ~/.emacs
 (require 'package)
 (add-to-list 'package-archives
              '("melpa-stable" . "http://stable.melpa.org/packages/") t)
@@ -575,7 +618,7 @@ EOF
 }
 
 _configureNvimInit(){
-  cat << NvimInit > ~/.config/nvim/init.lua
+  cat << 'NvimInit' > ~/.config/nvim/init.lua
 -- init.lua
 --------------------------------------------------
 -- 基礎外觀
@@ -634,7 +677,7 @@ NvimInit
 
 _configureNvimKeybind(){
   mkdir -p ~/.config/nvim
-  cat << NvimKeybind > ~/.config/nvim/keybind.lua
+  cat << 'NvimKeybind' > ~/.config/nvim/keybind.lua
 -- 快捷鍵設定
 
 -- 上下左右、翻頁、首尾
@@ -684,7 +727,7 @@ NvimKeybind
 
 _configureNvimWindow(){
   mkdir -p ~/.config/nvim
-  cat << NvimWindow > ~/.config/nvim/window.lua
+  cat << 'NvimWindow' > ~/.config/nvim/window.lua
 -- 視窗導航
 -- -- 註解
 vim.keymap.set('n', '<C-c><C-w><Right>', ':vsplit<CR>', { silent = true  })
@@ -698,7 +741,7 @@ NvimWindow
 
 _configureNvimPlugins(){
   mkdir -p ~/.config/nvim
-  cat << NvimPlugins > ~/.config/nvim/plugins.vim
+  cat << 'NvimPlugins' > ~/.config/nvim/plugins.vim
 call plug#begin()
 
 nm <C-c>' <Plug>(emmet-expand-abbr)
@@ -732,7 +775,7 @@ _configureNvimPluginsConfig(){
 }
 
 __configureNvimLsp(){
-  cat << NvimLsp > ~/.config/nvim/plugins-config/lsp.lua
+  cat << 'NvimLsp' > ~/.config/nvim/plugins-config/lsp.lua
 -- Python
 vim.lsp.enable('pyright')
 -- Ruby
@@ -752,7 +795,7 @@ NvimLsp
 }
 
 __configureNvimCmp(){
-  cat << NvimCmp > ~/.config/nvim/plugins-config/cmp.lua
+  cat << 'NvimCmp' > ~/.config/nvim/plugins-config/cmp.lua
 -- Set up nvim-cmp.
 local cmp = require'cmp'
 cmp.setup({
@@ -816,7 +859,7 @@ NvimCmp
 
 __configureNvimCommentary(){
   mkdir -p ~/.config/nvim/plugins-config
-  cat << NvimCommentary > ~/.config/nvim/plugins-config/commentary.lua
+  cat << 'NvimCommentary' > ~/.config/nvim/plugins-config/commentary.lua
 -- 註解
 vim.keymap.set('n', '<C-c>;', ':Commentary<CR>', { silent = true })
 vim.keymap.set('v', '<C-c>;', ':Commentary<CR>', { silent = true })
@@ -825,7 +868,7 @@ NvimCommentary
 
 __configureNvimEasymotion(){
   mkdir -p ~/.config/nvim/plugins-config
-  cat << NvimEasymotion > ~/.config/nvim/plugins-config/easymotion.lua
+  cat << 'NvimEasymotion' > ~/.config/nvim/plugins-config/easymotion.lua
 -- 快速移動 cursor（EasyMotion）
 vim.keymap.set('n', '<C-j>', '<Plug>(easymotion-s)', { silent = true })
 vim.keymap.set('v', '<C-j>', '<Plug>(easymotion-s)', { silent = true })
@@ -835,7 +878,7 @@ NvimEasymotion
 
 __configureNvimFzf(){
   mkdir -p ~/.config/nvim/plugins-config
-  cat << NvimFzf > ~/.config/nvim/plugins-config/fzf.lua
+  cat << 'NvimFzf' > ~/.config/nvim/plugins-config/fzf.lua
 -- FZF 功能（使用 <Cmd> 避免模式切換）
 vim.keymap.set('n', '<C-c><C-f>', '<Cmd>Files<CR>')
 vim.keymap.set('n', '<C-c><C-b>', '<Cmd>Buffers<CR>')
@@ -847,7 +890,7 @@ NvimFzf
 postActionHint(){
     if [[ $DESKTOP_SESSION == xfce ]]
     then
-	cat <<EOF
+	cat <<'EOF'
 1. change resolution to fit your monitor size and distance
 2. change the keyboard shortcut
   a. alacritty to Ctl-Alt-t
@@ -862,7 +905,7 @@ postActionHint(){
     -> check "Tap touchpad to click"
 EOF
     fi
-    cat <<EOF
+    cat <<'EOF'
 1. register your ssh key to github
   -> cat ~/.ssh/personal.pub | xclip -sel clip
   -> go to github
