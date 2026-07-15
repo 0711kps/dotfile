@@ -363,6 +363,7 @@ configureGit(){
   git config --global rebase.abbreviateCommands true
   git config --global core.editor nvim
   git config --global init.defaultBranch tua-bue
+  git config --global rebase.abbreviateCommands true
 }
 
 configurePodman(){
