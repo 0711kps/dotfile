@@ -322,6 +322,8 @@ shopt -s histappend
 
 # After each command, append to the history file and reread it
 PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
+$(command -v gsettings > /dev/null)  && gsettings set org.gnome.desktop.wm.preferences mouse-button-modifier '<Alt>'
+$(command -v gsettings > /dev/null) && gsettings set org.gnome.desktop.wm.preferences resize-with-right-button true
 BashEnv
 }
 
