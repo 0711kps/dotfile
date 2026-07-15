@@ -151,6 +151,7 @@ _configureBashAlias(){
 # git
 alias gst="git status"
 alias glg="git log"
+alias glgo='git log --oneline'
 alias gb="git branch"
 alias gbm="gb -m"
 alias grb="git rebase"
