@@ -351,10 +351,18 @@ SSHConfig
 
 configureGit(){
   askForProcessing "configure git" || return
+
+  command -v git > /dev/null
+  if ! [[ $? == 0 ]]
+  then
+    echo "git not installed !"
+    return 1
+  fi
   git config --global user.name "Pero.Xie"
   git config --global user.email "perox@duck.com"
   git config --global rebase.abbreviateCommands true
   git config --global core.editor nvim
+  git config --global init.defaultBranch tua-bue
 }
 
 configurePodman(){
