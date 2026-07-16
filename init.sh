@@ -378,18 +378,81 @@ configurePodman(){
 
 configureNeovim(){
   askForProcessing "configure neovim" || return
-  # download vim-plug
-  mkdir -p ~/.config/nvim/autoload
-  if [[ ! -f ~/.config/nvim/autoload/plug.vim ]]
-  then
-    curl -sfLo ~/.config/nvim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  fi
-  _configureNvimKeybind
-  _configureNvimWindow
-  _configureNvimPlugins
-  _configureNvimPluginsConfig
-  _configureNvimInit
-  nvim -c ":PlugInstall | qa"
+
+  mkdir -p ~/.config/nvim
+  cat << 'EOF' > ~/.config/nvim/init.lua
+-- init.lua
+--------------------------------------------------
+-- 基礎外觀
+--------------------------------------------------
+vim.opt.tabstop	      = 2
+vim.opt.shiftwidth    = 2
+vim.opt.expandtab     = true
+vim.opt.filetype      = 'on'        -- 其實 nvim 預設就開，留著相容
+vim.opt.syntax        = 'on'        -- 等同 syntax on
+vim.opt.cursorline    = true        -- set cursorline
+vim.opt.number        = true        -- set number
+vim.opt.mouse         = ''          -- 關閉 mouse（等同 set mouse=）
+-- 高亮游標所在行
+vim.opt.cursorline = true
+
+-- 高亮游標所在列（垂直）
+vim.opt.cursorcolumn = true
+
+--------------------------------------------------
+-- 相對載入
+--------------------------------------------------
+local function source_lua_relatively(name)
+  -- 載入 ~/.config/nvim/<name>.vim
+  local path = vim.fn.stdpath('config') .. '/' .. name .. '.lua'
+  vim.cmd('source ' .. path)
+end
+
+-- 快捷鍵設定
+
+-- 上下左右、翻頁、首尾
+local keymap = vim.keymap.set
+
+-- <C-p> = 上箭頭
+keymap({'n', 'i', 'v'}, '<C-p>', '<Up>')
+
+-- <C-v> = PageDown
+keymap({'n', 'i', 'v'}, '<C-v>', '<PageDown>')
+
+-- <A-v> = PageUp（注意：Alt 組合在終端可能需額外設定）
+keymap({'n', 'i', 'v'}, '<A-v>', '<PageUp>')
+
+-- <C-n> = 下箭頭
+keymap({'n', 'i', 'v'}, '<C-n>', '<Down>')
+
+-- <C-b> = 左箭頭
+keymap({'n', 'i', 'v'}, '<C-b>', '<Left>')
+
+-- <C-f> = 右箭頭
+keymap({'n', 'i', 'v'}, '<C-f>', '<Right>')
+
+-- <C-a> = Home
+keymap({'n', 'i', 'v'}, '<C-a>', '<Home>')
+
+-- <C-e> = End
+keymap({'n', 'i', 'v'}, '<C-e>', '<End>')
+
+-- Insert 模式下 <C-d> = Delete
+keymap('i', '<C-d>', '<Delete>')
+
+-- Multi edit: <C-x><C-n> = cgn（normal 模式）
+keymap('n', '<C-x><C-n>', 'cgn')
+
+-- ESC（退出 insert/visual/normal 模式）
+keymap({'n', 'i', 'v'}, '<C-\\>', '<Esc>')
+keymap({'n', 'i', 'v'}, '<C-g>', '<Esc>')
+
+-- 模仿 emacs 的 <C-k>：刪除游標後到行尾的內容
+vim.keymap.set('i', '<C-k>', '<C-o>D', { silent = true })
+
+-- 禁用 <C-o> 的跳轉功能（設為 Nop）
+keymap({'n', 'i', 'v'}, '<C-o>', '<Nop>')
+EOF
 }
 
 configureEmacs(){
