@@ -359,8 +359,8 @@ configureGit(){
     echo "git not installed !"
     return 1
   fi
-  git config --global user.name "Pero.Xie"
-  git config --global user.email "perox@duck.com"
+  git config --global user.name $USER
+  git config --global user.email \<\>
   git config --global rebase.abbreviateCommands true
   git config --global core.editor nvim
   git config --global init.defaultBranch tua-bue
