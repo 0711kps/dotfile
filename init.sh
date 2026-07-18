@@ -343,7 +343,7 @@ configureSSHkey(){
   askForProcessing "configure ssh key" || return
   ssh-keygen -b 4096 -t ed25519 -f ~/.ssh/personal -q -N ""
   cat << 'SSHConfig' >> ~/.ssh/config
-Host mygithub
+Host hub
   Hostname github.com
   User git
   IdentityFile ~/.ssh/personal
