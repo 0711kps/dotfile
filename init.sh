@@ -458,6 +458,7 @@ EOF
 configureEmacs(){
     askForProcessing "configure emacs" || return
     cat << 'EOF' > ~/.emacs
+
 (require 'package)
 (add-to-list 'package-archives
              '("melpa-stable" . "http://stable.melpa.org/packages/") t)
@@ -493,56 +494,7 @@ configureEmacs(){
 (setq typescript-indent-level 2)
 (setq sh-basic-offset 2)
 
-(add-to-list 'auto-mode-alist '("\\\\.tsx\\\\'" . typescript-mode))
-
-(use-package aider
-  :ensure t
-  :config
-  ;; For latest claude sonnet model
-  (setq aider-args '("--model" "4o" "--no-auto-accept-architect")) ;; add --no-auto-commits if you don't want it
-  (setenv "OPENAI_API_KEY" "sk-no-key-needed")
-  (setenv "OPENAI_API_URL" "http://localhost:8080/v1")
-  ;; Or chatgpt model
-  ;; (setq aider-args '("--model" "o4-mini"))
-  ;; (setenv "OPENAI_API_KEY" <your-openai-api-key>)
-  ;; Or use your personal config file
-  ;; (setq aider-args ("--config" ,(expand-file-name "~/.aider.conf.yml")))
-  ;; ;;
-  ;; Optional: Set a key binding for the transient menu
-  (global-set-key (kbd "C-c a") 'aider-transient-menu) ;; for wider screen
-  ;; or use aider-transient-menu-2cols / aider-transient-menu-1col, for narrow screen
-  (aider-magit-setup-transients) ;; add aider magit function to magit menu
-  ;; auto revert buffer
-  (global-auto-revert-mode 1)
-  (auto-revert-mode 1))
-
-(use-package minuet
-    :ensure t
-    :bind
-    (("M-y" . #'minuet-complete-with-minibuffer)
-    :map minuet-active-mode-map)
-    :config
-    (setq minuet-provider 'openai-fim-compatible)
-    (setq minuet-max-tokens 50)
-    (setq minuet-n-completions 1)
-    (setq minuet-context-window 256)
-    (plist-put minuet-openai-fim-compatible-options :end-point "http://localhost:8080/v1/completions")
-    (plist-put minuet-openai-fim-compatible-options :name "Llama.cpp")
-    (plist-put minuet-openai-fim-compatible-options :api-key "TERM")
-    (plist-put minuet-openai-fim-compatible-options :model "any")
-    (minuet-set-nested-plist minuet-openai-fim-compatible-options nil :template :suffix)
-    (minuet-set-optional-options
-     minuet-openai-fim-compatible-options
-     :prompt
-     (defun minuet-llama-cpp-fim-qwen-prompt-function (ctx)
-         (format "<|fim_prefix|>%s\n%s<|fim_suffix|>%s<|fim_middle|>"
-                 (plist-get ctx :language-and-tab)
-                 (plist-get ctx :before-cursor)
-                 (plist-get ctx :after-cursor))
-     :template)
-
-    (minuet-set-optional-options minuet-openai-fim-compatible-options :max_tokens 256)))
-
+(add-to-list 'auto-mode-alist '("\\\.tsx\\'" . typescript-mode))
 
 ;; Enable vertico
 (use-package vertico
@@ -575,10 +527,7 @@ configureEmacs(){
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(ace-window cape consult corfu-terminal emmet-mode marginalia
-		multiple-cursors orderless typescript-mode vertico
-		web-mode)))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -590,9 +539,9 @@ configureEmacs(){
   :ensure t
   :custom
   (corfu-count 3)
-  (corfu-auto t)                 ;; 自動跳出補全視窗
-  (corfu-auto-delay 0.6)         ;; 0 秒延遲，反應最快
-  (corfu-auto-prefix 1)          ;; 輸入 1 個字就開始提示
+  (corfu-auto t)                 ;; 自動跳出補全視窗 t or nil
+  (corfu-auto-delay 0)         ;; 0 秒延遲，反應最快
+  (corfu-auto-prefix 2)          ;; 輸入 1 個字就開始提示
   (corfu-cycle t)                ;; 可以循環選單
   :init
   (global-corfu-mode))           ;; 全域開啟
@@ -607,7 +556,15 @@ configureEmacs(){
   :ensure t)
 
 (use-package eglot
-  :ensure nil)
+  :ensure nil
+    :config
+  (let* ((tsls-path (string-trim
+                      (shell-command-to-string
+                       "asdf which typescript-language-server"))))
+    (when (and tsls-path (not (string-empty-p tsls-path)))
+      (add-to-list 'eglot-server-programs
+                   `(typescript-mode . ,(list tsls-path "--stdio")))))
+  )
 
 ;; 2. 設定 A 鍵 (手動 LSP)
 (global-set-key (kbd "M-/") #'completion-at-point)
