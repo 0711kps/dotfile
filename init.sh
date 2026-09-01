@@ -10,118 +10,23 @@ askForProcessing(){
   [[ $ans == "y" ]]
 }
 
-installSystemPackages(){
-    if [[ $(command -v apt) ]]
-    then
-	installAPTpackages
-    elif [[ $(command -v dnf) ]]
-    then
-	 installDnfPackages
-    fi
-}
-
-installDnfPackages(){
-    askForProcessing "install dnf packages" || return
-    printf "now installing DNF packages..\r"
-    inputMethod="fcitx5 fcitx5-chewing fcitx5-anthy fcitx5-pinyin"
-    commonBuildDependencies="make automake gcc gcc-c++ kernel-devel git curl wget cmake"
-    utilities="fzf fd-find ripgrep bat xclip neovim httpie emacs-nox"
-    container="podman podman-compose qemu-system-x86"
-    desktopApps="mpv alacritty obs-studio musescore ardour9 audacity"
-
-    sudo dnf install -yq ${inputMethod} ${commonBuildDependencies} ${utilities} ${container} ${desktopApps}
+installBrewPackages(){
+  askForProcessing "install brew packages" || return
+  printf "now installing linuxhomebrew...\r"
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+  echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc
+  printf "now installing brew packages...\r"
+  brew install ripgrep fd fzf xclip bat httpie mise neovim ffmpeg podman starship
 }
 
 installAPTpackages(){
   askForProcessing "install apt packages" || return
   printf "now installing APT packages...\r"
-  inputMethod="im-config fcitx5 fcitx5-chewing fcitx5-anthy fcitx5-pinyin"
   commonBuildDependencies="build-essential git curl wget cmake"
-  utilities="fzf fd-find ripgrep bat xclip neovim httpie emacs-nox"
-  container="podman podman-compose qemu-system-x86"
-  desktopApps="mpv alacritty obs-studio musescore ardour audacity"
+  container="podman"
 
-  rubyDependencies="zlib1g-dev libreadline-dev libffi-dev libyaml-dev"
-  sudo apt-get install -yqq ${inputMethod} ${commonBuildDependencies} ${utilities} ${rubyDependencies} ${container} ${desktopApps}
-}
-
-downloadFonts(){
-  askForProcessing "download fonts" || return
-  mkdir -p ~/.local/share/fonts
-
-  # nerd fonts
-  local fontNames=(CascadiaCode FiraCode D2Coding Hasklig Lilex)
-  for fontName in $fontNames
-  do
-    curl -sfLo ${fontName}.zip https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/${fontName}.zip
-    unzip -jo ${fontName}.zip '*.ttf' -d ~/.local/share/fonts && rm -f ${fontName}.zip
-  done
-
-  # jetbrain mono
-  curl -sfLo JetBrainsMono.zip https://download.jetbrains.com/fonts/JetBrainsMono-2.304.zip
-  unzip -jo JetBrainsMono.zip  '*.ttf' -d ~/.local/share/fonts/ && rm -f JetBrainsMono.zip
-
-  # victor
-  curl -sfLo VictorMono.zip https://rubjo.github.io/victor-mono/VictorMonoAll.zip
-  unzip -jo VictorMono.zip '*.ttf' -d ~/.local/share/fonts/ && rm -f VictorMono.zip
-
-  fc-cache -fv
-}
-
-configureInputMethod(){
-  askForProcessing "configure input method" || return
-  echo "please select Update input method config, and activate fcitx5 framework"
-  im-config
-  echo "please open up fcitx5 configuration window, and activate the input methods you need"
-  fcitx5-configtool
-}
-
-installStarship(){
-  askForProcessing "configure starship" || return
-  curl -sS https://starship.rs/install.sh | sh
-}
-
-installASDF(){
-  askForProcessing "install asdf version manager" || return
-  wget "https://github.com/asdf-vm/asdf/releases/download/v0.18.0/asdf-v0.18.0-linux-amd64.tar.gz" -O asdf.tar.gz
-  tar xf asdf.tar.gz
-  sudo mv asdf /usr/local/bin/
-  rm -f asdf.tar.gz
-  mkdir -p ~/.asdf
-  local plugins=(ruby rust golang nodejs gleam)
-  for plugin in $plugins
-  do
-    asdf plugin add ${plugin}
-  done
-}
-
-configureAlacritty(){
-    askForProcessing "configure alacritty" || return
-    mkdir -p ~/.config/alacritty
-    cat <<'EOF' > ~/.config/alacritty/alacritty.toml
-[general]
-live_config_reload = true
-
-[window]
-opacity = 0.82
-padding = { x = 8, y = 3 }
-dimensions = { columns = 110, lines = 36 }
-
-[font]
-#normal = { family = "CaskaydiaCove Nerd Font", style = "Regular" }
-#bold = { family = "CaskaydiaCove Nerd Font", style = "Bold" }
-normal = { family = "JetBrains Mono", style = "Regular" }
-bold = { family = "JetBrains Mono", style = "Bold" }
-size = 15.5
-
-[cursor.style]
-shape = "Beam"
-blinking = "Always"
-
-[colors.primary]
-background = "#1a1b26"
-foreground = "#a9b1d6"
-EOF
+  sudo apt-get install -yqq ${commonBuildDependencies} ${container}
 }
 
 configureBash(){
@@ -188,7 +93,6 @@ alias vim="nvim"
 alias v="vim"
 alias fd="fdfind"
 alias t="batcat"
-alias e="emacs"
 
 # podman
 alias docker="podman"
@@ -367,15 +271,6 @@ configureGit(){
   git config --global rebase.abbreviateCommands true
 }
 
-configurePodman(){
-  askForProcessing "configure podman" || return
-  sudo wget https://github.com/containers/gvisor-tap-vsock/releases/download/v0.8.7/gvproxy-linux-amd64 -O /usr/libexec/podman/gvproxy && sudo chmod +x /usr/libexec/podman/gvproxy
-  curl -fsLo virtiofsd.zip https://gitlab.com/-/project/21523468/uploads/0298165d4cd2c73ca444a8c0f6a9ecc7/virtiofsd-v1.13.2.zip
-  sudo unzip -jo virtiofsd.zip  -d /usr/local/libexec/podman && rm -f virtiofsd.zip
-  podman machine init
-#  podman machine start
-}
-
 configureNeovim(){
   askForProcessing "configure neovim" || return
 
@@ -452,200 +347,6 @@ vim.keymap.set('i', '<C-k>', '<C-o>D', { silent = true })
 
 -- 禁用 <C-o> 的跳轉功能（設為 Nop）
 keymap({'n', 'i', 'v'}, '<C-o>', '<Nop>')
-EOF
-}
-
-configureEmacs(){
-    askForProcessing "configure emacs" || return
-    cat << 'EOF' > ~/.emacs
-
-(require 'package)
-(add-to-list 'package-archives
-             '("melpa-stable" . "http://stable.melpa.org/packages/") t)
-(package-initialize)
-
-(defvar package-list-stamp-file
-  (expand-file-name ".package-refresh-stamp" user-emacs-directory))
-
-(defun ensure-fresh-package-list (&optional hours)
-  "Refresh package list if stamp older than HOURS (default 6)."
-  (let* ((max-age (or hours 60))
-         (elapsed (if (file-exists-p package-list-stamp-file)
-                      (- (float-time)
-                         (float-time (nth 5 (file-attributes package-list-stamp-file))))
-                    most-positive-fixnum)))  ;; 不存在 = 強制 refresh
-    (when (> elapsed (* max-age 3600))
-      (package-refresh-contents)
-      (write-region "" nil package-list-stamp-file)
-      (message "Package list refreshed."))))
-
-(add-hook 'after-init-hook (lambda () (ensure-fresh-package-list 77)))
-
-(setq make-backup-files nil)
-(setq auto-save-default nil)
-(global-display-line-numbers-mode t)
-(setq scroll-step 1
-      scroll-conservatively 10000)
-(setq inhibit-startup-screen t)
-(setq scroll-margin 3)
-
-
-(setq js-indent-level 2)
-(setq typescript-indent-level 2)
-(setq sh-basic-offset 2)
-
-(add-to-list 'auto-mode-alist '("\\\.tsx\\'" . typescript-mode))
-
-;; Enable vertico
-(use-package vertico
-  :ensure t
-  :init
-  (vertico-mode))
-
-; Enable rich annotations using the Marginalia package
-(use-package marginalia
-  :ensure t
-  :init
-  (marginalia-mode))
-
-;; Configure orderless for flexible completion styles
-(use-package orderless
-  :ensure t
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
-
-;; Persist history over Emacs restarts
-(use-package savehist
-  :init
-  (savehist-mode))
-
-;; Optionally enable cycling for vertico-next/previous
-(setq vertico-cycle t)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-
-(use-package corfu
-  :ensure t
-  :custom
-  (corfu-count 3)
-  (corfu-auto t)                 ;; 自動跳出補全視窗 t or nil
-  (corfu-auto-delay 0)         ;; 0 秒延遲，反應最快
-  (corfu-auto-prefix 2)          ;; 輸入 1 個字就開始提示
-  (corfu-cycle t)                ;; 可以循環選單
-  :init
-  (global-corfu-mode))           ;; 全域開啟
-
-(use-package corfu-terminal
-  :ensure t
-  :config
-  (unless (display-graphic-p)
-    (corfu-terminal-mode 1)))
-
-(use-package cape
-  :ensure t)
-
-(use-package eglot
-  :ensure nil
-    :config
-  (let* ((tsls-path (string-trim
-                      (shell-command-to-string
-                       "asdf which typescript-language-server"))))
-    (when (and tsls-path (not (string-empty-p tsls-path)))
-      (add-to-list 'eglot-server-programs
-                   `(typescript-mode . ,(list tsls-path "--stdio")))))
-  )
-
-;; 2. 設定 A 鍵 (手動 LSP)
-(global-set-key (kbd "M-/") #'completion-at-point)
-
-(setq-default completion-at-point-functions 
-              '(cape-dabbrev cape-file cape-keyword))
-
-(defun my/toggle-eglot ()
-  "如果 eglot 沒開啟就執行 eglot，否則執行 eglot-shutdown。"
-  (interactive)
-  (if (bound-and-true-p eglot--managed-mode)
-      (eglot-shutdown (eglot-current-server))
-    (call-interactively 'eglot)))
-
-;; keybind for toggle eglot
-(require 'bind-key)
-(bind-key* "C-c e" #'my/toggle-eglot)
-(bind-key* "C-c C-e" #'my/toggle-eglot)
-(bind-key* "C-c g" 'goto-line)
-(bind-key* "C-c C-g" 'goto-line)
-(bind-key* "C-c j" 'avy-goto-char-timer)
-(bind-key* "C-c C-j" 'avy-goto-char-timer)
-(bind-key* "C-c r" 'consult-ripgrep)
-(bind-key* "C-c C-r" 'consult-ripgrep)
-(bind-key* "C-c ;" 'comment-line)
-(bind-key* "C-c ," 'emmet-expand-line)
-(bind-key* "C-c C-v" 'set-mark-command)
-(bind-key* "C-h" 'delete-backward-char)
-
-(use-package emmet-mode
-  :ensure t)
-(use-package typescript-mode
-  :ensure t)
-
-(defun my/split-right ()
-  "separate and move to right"
-  (interactive)
-  (split-window-right)
-  (windmove-right))
-
-(defun my/split-left ()
-  "separate and move to left"
-  (interactive)
-  (split-window-right))
-
-(defun my/split-up ()
-  "separate and move to up"
-  (interactive)
-  (split-window-below))
-
-(defun my/split-down ()
-  "separate and move to down"
-  (interactive)
-  (split-window-below)
-  (windmove-down))
-
-(bind-key* "C-c C-w C-d" #'my/split-right)
-(bind-key* "C-c C-w C-a" #'my/split-left)
-(bind-key* "C-c C-w C-s" #'my/split-down)
-(bind-key* "C-c C-w C-w" #'my/split-up)
-(bind-key* "C-c C-w C-b" 'ace-window)
-(bind-key* "C-c RET ." 'mc/mark-next-like-this)
-(bind-key* "C-c RET RET" 'mc/skip-to-next-like-this)
-(bind-key* "C-c C-k" 'point-to-register)
-(bind-key* "C-C C-l" 'jump-to-register)
-(bind-key* "C-c C-f" 'consult-fd)
-;; ACE JUMP!
-(use-package avy
-  :ensure t
-  :config
-  (setq avy-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-  )
-
-(use-package consult
-  :ensure t)
-
-(use-package ace-window
-  :ensure t)
-
-(use-package multiple-cursors
-  :ensure t)
 EOF
 }
 
@@ -951,16 +652,205 @@ EOF
 EOF
 }
 
-installSystemPackages
-downloadFonts
-configureInputMethod
-installStarship
-installASDF
-configureAlacritty
+installAPTpackages
 configureBash
 configureSSHkey
 configureGit
-configurePodman
 configureNeovim
-configureEmacs
 postActionHint
+
+# configureEmacs
+
+# configureEmacs(){
+#     askForProcessing "configure emacs" || return
+#     cat << 'EOF' > ~/.emacs
+
+# (require 'package)
+# (add-to-list 'package-archives
+#              '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+# (package-initialize)
+
+# (defvar package-list-stamp-file
+#   (expand-file-name ".package-refresh-stamp" user-emacs-directory))
+
+# (defun ensure-fresh-package-list (&optional hours)
+#   "Refresh package list if stamp older than HOURS (default 6)."
+#   (let* ((max-age (or hours 60))
+#          (elapsed (if (file-exists-p package-list-stamp-file)
+#                       (- (float-time)
+#                          (float-time (nth 5 (file-attributes package-list-stamp-file))))
+#                     most-positive-fixnum)))  ;; 不存在 = 強制 refresh
+#     (when (> elapsed (* max-age 3600))
+#       (package-refresh-contents)
+#       (write-region "" nil package-list-stamp-file)
+#       (message "Package list refreshed."))))
+
+# (add-hook 'after-init-hook (lambda () (ensure-fresh-package-list 77)))
+
+# (setq make-backup-files nil)
+# (setq auto-save-default nil)
+# (global-display-line-numbers-mode t)
+# (setq scroll-step 1
+#       scroll-conservatively 10000)
+# (setq inhibit-startup-screen t)
+# (setq scroll-margin 3)
+
+
+# (setq js-indent-level 2)
+# (setq typescript-indent-level 2)
+# (setq sh-basic-offset 2)
+
+# (add-to-list 'auto-mode-alist '("\\\.tsx\\'" . typescript-mode))
+
+# ;; Enable vertico
+# (use-package vertico
+#   :ensure t
+#   :init
+#   (vertico-mode))
+
+# ; Enable rich annotations using the Marginalia package
+# (use-package marginalia
+#   :ensure t
+#   :init
+#   (marginalia-mode))
+
+# ;; Configure orderless for flexible completion styles
+# (use-package orderless
+#   :ensure t
+#   :custom
+#   (completion-styles '(orderless basic))
+#   (completion-category-overrides '((file (styles basic partial-completion)))))
+
+# ;; Persist history over Emacs restarts
+# (use-package savehist
+#   :init
+#   (savehist-mode))
+
+# ;; Optionally enable cycling for vertico-next/previous
+# (setq vertico-cycle t)
+# (custom-set-variables
+#  ;; custom-set-variables was added by Custom.
+#  ;; If you edit it by hand, you could mess it up, so be careful.
+#  ;; Your init file should contain only one such instance.
+#  ;; If there is more than one, they won't work right.
+#  '(package-selected-packages nil))
+# (custom-set-faces
+#  ;; custom-set-faces was added by Custom.
+#  ;; If you edit it by hand, you could mess it up, so be careful.
+#  ;; Your init file should contain only one such instance.
+#  ;; If there is more than one, they won't work right.
+#  )
+
+# (use-package corfu
+#   :ensure t
+#   :custom
+#   (corfu-count 3)
+#   (corfu-auto t)                 ;; 自動跳出補全視窗 t or nil
+#   (corfu-auto-delay 0)         ;; 0 秒延遲，反應最快
+#   (corfu-auto-prefix 2)          ;; 輸入 1 個字就開始提示
+#   (corfu-cycle t)                ;; 可以循環選單
+#   :init
+#   (global-corfu-mode))           ;; 全域開啟
+
+# (use-package corfu-terminal
+#   :ensure t
+#   :config
+#   (unless (display-graphic-p)
+#     (corfu-terminal-mode 1)))
+
+# (use-package cape
+#   :ensure t)
+
+# (use-package eglot
+#   :ensure nil
+#     :config
+#   (let* ((tsls-path (string-trim
+#                       (shell-command-to-string
+#                        "asdf which typescript-language-server"))))
+#     (when (and tsls-path (not (string-empty-p tsls-path)))
+#       (add-to-list 'eglot-server-programs
+#                    `(typescript-mode . ,(list tsls-path "--stdio")))))
+#   )
+
+# ;; 2. 設定 A 鍵 (手動 LSP)
+# (global-set-key (kbd "M-/") #'completion-at-point)
+
+# (setq-default completion-at-point-functions 
+#               '(cape-dabbrev cape-file cape-keyword))
+
+# (defun my/toggle-eglot ()
+#   "如果 eglot 沒開啟就執行 eglot，否則執行 eglot-shutdown。"
+#   (interactive)
+#   (if (bound-and-true-p eglot--managed-mode)
+#       (eglot-shutdown (eglot-current-server))
+#     (call-interactively 'eglot)))
+
+# ;; keybind for toggle eglot
+# (require 'bind-key)
+# (bind-key* "C-c e" #'my/toggle-eglot)
+# (bind-key* "C-c C-e" #'my/toggle-eglot)
+# (bind-key* "C-c g" 'goto-line)
+# (bind-key* "C-c C-g" 'goto-line)
+# (bind-key* "C-c j" 'avy-goto-char-timer)
+# (bind-key* "C-c C-j" 'avy-goto-char-timer)
+# (bind-key* "C-c r" 'consult-ripgrep)
+# (bind-key* "C-c C-r" 'consult-ripgrep)
+# (bind-key* "C-c ;" 'comment-line)
+# (bind-key* "C-c ," 'emmet-expand-line)
+# (bind-key* "C-c C-v" 'set-mark-command)
+# (bind-key* "C-h" 'delete-backward-char)
+
+# (use-package emmet-mode
+#   :ensure t)
+# (use-package typescript-mode
+#   :ensure t)
+
+# (defun my/split-right ()
+#   "separate and move to right"
+#   (interactive)
+#   (split-window-right)
+#   (windmove-right))
+
+# (defun my/split-left ()
+#   "separate and move to left"
+#   (interactive)
+#   (split-window-right))
+
+# (defun my/split-up ()
+#   "separate and move to up"
+#   (interactive)
+#   (split-window-below))
+
+# (defun my/split-down ()
+#   "separate and move to down"
+#   (interactive)
+#   (split-window-below)
+#   (windmove-down))
+
+# (bind-key* "C-c C-w C-d" #'my/split-right)
+# (bind-key* "C-c C-w C-a" #'my/split-left)
+# (bind-key* "C-c C-w C-s" #'my/split-down)
+# (bind-key* "C-c C-w C-w" #'my/split-up)
+# (bind-key* "C-c C-w C-b" 'ace-window)
+# (bind-key* "C-c RET ." 'mc/mark-next-like-this)
+# (bind-key* "C-c RET RET" 'mc/skip-to-next-like-this)
+# (bind-key* "C-c C-k" 'point-to-register)
+# (bind-key* "C-C C-l" 'jump-to-register)
+# (bind-key* "C-c C-f" 'consult-fd)
+# ;; ACE JUMP!
+# (use-package avy
+#   :ensure t
+#   :config
+#   (setq avy-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+#   )
+
+# (use-package consult
+#   :ensure t)
+
+# (use-package ace-window
+#   :ensure t)
+
+# (use-package multiple-cursors
+#   :ensure t)
+# EOF
+# }
