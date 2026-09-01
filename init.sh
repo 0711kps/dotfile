@@ -210,6 +210,62 @@ hashrename(){
   mv "$input" "${new_name}" &&
   echo "$input --> $new_name"
 }
+
+rv(){
+  mpv $v.mp4 --volume=35 --geometry=x880
+}
+
+rd(){
+  rm -i $v.mp4
+  unset output vf EXT output
+}
+
+f(){
+  [[ ${#@} -lt 2 ]] && echo "args not enough, e.g. f <start> <end>" && return 1
+  [[ -z $output ]] && echo "\$output not set" && return 1
+
+  [[ -z $EXT ]] && EXT=mp4
+  local start_seconds end_seconds t_time
+  local start_time=$1
+  local end_time=$2
+  if [[ $(echo $start_time | rg -o "[:-]" | wc -l) -eq 2 ]]
+  then
+    start_seconds=$(echo $start_time | sed "s/[:\-]/*3600+/" | sed "s/[:\-]/*60+/" | bc)
+  elif [[ $(echo $start_time | rg -o "[:-]" | wc -l) -eq 1 ]]
+  then
+    start_seconds=$(echo $start_time | sed "s/[:\-]/*60+/" | bc)
+  else
+    start_seconds=$start_time
+  fi
+  start_time="-ss $start_seconds"
+  if [[ $(echo $end_time | rg -o "[:-]" | wc -l) -eq 2 ]]
+  then
+    end_seconds=$(echo $end_time | sed "s/[:\-]/*3600+/" | sed "s/[:\-]/*60+/" | bc)
+  elif [[ $(echo $end_time | rg -o "[:-]" | wc -l) -eq 1 ]]
+  then
+    end_seconds=$(echo $end_time | sed "s/[:\-]/*60+/" | bc)
+  else
+    end_seconds=$end_time
+  fi
+  t_time=$(echo "$end_seconds - $start_seconds" | bc)
+  reset
+  echo ffmpeg $start_time -i $v.$EXT -c:v libx265 -c:a libopus $vf -t $t_time ${@:3} x-videos/$output
+  sleep 1
+  flock /tmp/ff.lock ffmpeg -stats_period 3 -v error -hide_banner -stats $start_time -i $v.$EXT -c:v libx265 -c:a libopus $vf -t $t_time ${@:4} x-videos/$output
+  echo "$v"
+  echo "  ~ $end_time complete"
+  echo "  -> x-videos/$output"
+}
+
+x(){
+  if [[ ${#@} -eq 1 ]]
+  then
+    output=${v}_${1}.mp4
+  elif [[ ${#@} -eq 0 ]]
+  then
+    output=${v}.mp4
+  fi
+}
 BashAlias
 }
 
