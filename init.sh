@@ -17,16 +17,14 @@ installBrewPackages(){
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
   echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc
   printf "now installing brew packages...\r"
-  brew install ripgrep fd fzf xclip bat httpie mise neovim ffmpeg podman starship
+  brew install ripgrep fd fzf xclip bat httpie mise neovim ffmpeg podman starship unzip
 }
 
 installAPTpackages(){
   askForProcessing "install apt packages" || return
   printf "now installing APT packages...\r"
-  commonBuildDependencies="build-essential git curl wget cmake"
-  container="podman"
 
-  sudo apt-get install -yqq ${commonBuildDependencies} ${container}
+  sudo apt-get install -yqq build-essential git curl wget cmake podman pkg-config
 }
 
 configureBash(){
@@ -91,13 +89,11 @@ alias bdu="bd update"
 # others
 alias vim="nvim"
 alias v="vim"
-alias fd="fdfind"
 alias t="batcat"
 
 # podman
 alias docker="podman"
 alias dk="docker"
-alias dev="distrobox enter dev"
 
 cb(){
   if [[ -z $1 ]]
